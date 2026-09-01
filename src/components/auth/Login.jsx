@@ -13,8 +13,8 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get redirect path from location state
-    const from = location.state?.from || '/dashboard';
+    // ✅ Get redirect path from location state OR sessionStorage (Fix #1)
+    const from = location.state?.from || sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,6 +35,9 @@ const Login = () => {
         setLoading(false);
         
         if (result.success) {
+            // ✅ Clear the stored redirect after successful login (Fix #2)
+            sessionStorage.removeItem('redirectAfterLogin');
+
             // Check if user is admin
             const isAdmin = result.user?.role === 'Admin';
             
@@ -57,6 +60,16 @@ const Login = () => {
             } else {
                 navigate(from);
             }
+        } else {
+            // ✅ Add error handling for incorrect login (Fix #3 - Stops "refresh" feeling)
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: result.message || 'Invalid email or password',
+                background: '#1A1A2E',
+                color: '#F6DBC0',
+                confirmButtonColor: '#935073',
+            });
         }
     };
 
@@ -178,7 +191,7 @@ const Login = () => {
                         <div className="mt-6 text-center">
                             <p className="text-[#F6DBC0]/60">
                                 Don't have an account?{' '}
-                                <Link to="/signup" className="text-[#D4AF37] hover:text-[#D4AF37]/80 transition-colors font-medium">
+                                <Link to="/signup" state={{ from: from }} className="text-[#D4AF37] hover:text-[#D4AF37]/80 transition-colors font-medium">
                                     Create Account
                                 </Link>
                             </p>

@@ -27,9 +27,11 @@ const CheckoutPage = () => {
         country: 'Pakistan'
     });
 
-    // ✅ If user is not logged in, redirect to login
+    // ✅ If user is not logged in, redirect to login AND SAVE PATH
     useEffect(() => {
         if (!isAuthenticated) {
+            // Save the redirect path in sessionStorage so Login.js can use it
+            sessionStorage.setItem('redirectAfterLogin', '/checkout');
             navigate('/login', { state: { from: '/checkout' } });
             toast.error('Please login to place your order 🌸');
         }
